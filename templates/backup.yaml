@@ -1,0 +1,34 @@
+{{- if .Values.backup.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup
+spec:
+  schedule: "{{ .Values.backup.schedule }}"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup
+            image: rclone/rclone:1.62.2
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/sh
+            - -c
+            - "rclone sync -vv --config /etc/rclone/rclone.conf {{ .Values.storage.dataDir }} {{ .Values.backup.target }}:" 
+            volumeMounts:
+              - name: vaultwarden-data
+                mountPath: {{ .Values.storage.dataDir }}
+              - name: rclone-volume
+                mountPath: /etc/rclone
+          restartPolicy: OnFailure
+          volumes:
+          - name: vaultwarden-data
+            persistentVolumeClaim:
+              claimName: vaultwarden-data-{{ include "vaultwarden.fullname" .}}-0
+          - name: rclone-volume
+            configMap:
+              name: {{ include "vaultwarden.fullname" . }}-rclone
+{{- end }}    
+

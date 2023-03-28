@@ -272,3 +272,22 @@ affinity: {}
 ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
 ##
 tolerations: []
+
+## @section backup config
+backup:
+
+## @param enabled enable backup
+##
+  enabled: true
+
+## @param cron schedule for backup
+##
+  schedule: "0 * * * *"
+
+## @param target section defined in rclone.conf
+##
+  target: crypted_backup
+
+## @param path to rclone config file to be used
+##
+  config: rclone.conf
